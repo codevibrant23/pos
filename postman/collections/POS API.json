@@ -1,0 +1,698 @@
+{
+	"info": {
+		"_postman_id": "339e6913-8376-4ea3-ab47-34bfda2fd6f9",
+		"name": "POS API",
+		"description": "Comprehensive API documentation for the POS project, developed by Vibrant DigiTech.\n\nContact Support:\n Email: vibrantdigitech@gmail.com",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "16782346-339e6913-8376-4ea3-ab47-34bfda2fd6f9"
+	},
+	"item": [
+		{
+			"name": "login",
+			"item": [
+				{
+					"name": "login create",
+					"id": "2293be9a-ad97-4433-a2de-3abc5490574c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"<email>\",\n  \"password\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"id": "2148f45e-8398-4a4e-8720-b7e6908f6102",
+							"name": "User Logged in successfully",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"description": "Added as a part of security scheme: basic",
+										"key": "Authorization",
+										"value": "Basic <credentials>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"<email>\",\n  \"password\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [],
+							"cookie": [],
+							"body": null
+						},
+						{
+							"id": "4816e81c-0c47-4c15-be96-8f9c6e27491a",
+							"name": "Invalid credentials",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"description": "Added as a part of security scheme: basic",
+										"key": "Authorization",
+										"value": "Basic <credentials>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"<email>\",\n  \"password\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										""
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "text",
+							"header": [],
+							"cookie": [],
+							"body": null
+						}
+					]
+				}
+			],
+			"id": "0e2fa1fa-0828-441e-b978-eb0a82dcad18"
+		},
+		{
+			"name": "resend-otp",
+			"item": [
+				{
+					"name": "{user_id}",
+					"item": [
+						{
+							"name": "resend-otp create",
+							"id": "92ca0605-7b8b-48ea-8bc7-3c1d5bb3e19b",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/resend-otp/:user_id/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"resend-otp",
+										":user_id",
+										""
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "<integer>",
+											"description": "(Required) ID of the user for whom the OTP needs to be resent"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"id": "880a2bce-df0e-4e96-9b2f-57087c3e5873",
+									"name": "OTP has been resent successfully",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: basic",
+												"key": "Authorization",
+												"value": "Basic <credentials>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/resend-otp/:user_id/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"resend-otp",
+												":user_id",
+												""
+											],
+											"variable": [
+												{
+													"key": "user_id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json",
+											"uuid": "6a55b997-f59d-4fc2-b29a-3037246df64b"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"examples\": {\n    \"response\": {\n      \"value\": {\n        \"error\": false,\n        \"detail\": \"OTP has been resent to your email.\"\n      }\n    }\n  }\n}"
+								},
+								{
+									"id": "a6b4f215-5ed7-4e52-a141-430665f3ff0b",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: basic",
+												"key": "Authorization",
+												"value": "Basic <credentials>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/resend-otp/:user_id/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"resend-otp",
+												":user_id",
+												""
+											],
+											"variable": [
+												{
+													"key": "user_id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json",
+											"uuid": "61e71577-bc89-4e1c-b909-1743ca3e7e93"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"examples\": {\n    \"response\": {\n      \"value\": {\n        \"error\": true,\n        \"detail\": \"Invalid request.\"\n      }\n    }\n  }\n}"
+								},
+								{
+									"id": "6720d529-fb5b-4e10-8c5c-e20fe37f6af2",
+									"name": "User or OTP record not found",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: basic",
+												"key": "Authorization",
+												"value": "Basic <credentials>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/resend-otp/:user_id/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"resend-otp",
+												":user_id",
+												""
+											],
+											"variable": [
+												{
+													"key": "user_id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json",
+											"uuid": "3ca0cc2c-c89f-42aa-bf0d-66bc6d82703f"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"examples\": {\n    \"response\": {\n      \"value\": {\n        \"error\": true,\n        \"detail\": \"User not found.\"\n      }\n    }\n  }\n}"
+								}
+							]
+						}
+					],
+					"id": "224f4cc2-0e33-4eaa-821e-babddd53a8f9"
+				}
+			],
+			"id": "a90f99f7-12a7-45eb-b1bc-7e68ddbb1a1e"
+		},
+		{
+			"name": "sign-up",
+			"item": [
+				{
+					"name": "sign-up create",
+					"id": "6f92afa5-b8db-480d-83c8-26c48d46ec25",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"company_name\": \"<string>\",\n  \"email\": \"<email>\",\n  \"number_of_outlets\": \"<integer>\",\n  \"phone_number\": \"<string>\",\n  \"verified\": \"<boolean>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/sign-up/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sign-up",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"id": "82bfba6b-2d60-4aca-a987-a8347453e21c",
+							"name": "User created successfully",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"description": "Added as a part of security scheme: basic",
+										"key": "Authorization",
+										"value": "Basic <credentials>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"company_name\": \"<string>\",\n  \"email\": \"<email>\",\n  \"number_of_outlets\": \"<integer>\",\n  \"phone_number\": \"<string>\",\n  \"verified\": \"<boolean>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/sign-up/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sign-up",
+										""
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"uuid": "53e7bb1d-7c5e-4002-a8ea-4c5804211457"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"examples\": {\n    \"response\": {\n      \"value\": {\n        \"error\": false,\n        \"detail\": \"User created successfully. OTP has been sent to your email.\",\n        \"username\": \"example_username\",\n        \"user_id\": 1,\n        \"email\": \"example@example.com\"\n      }\n    }\n  }\n}"
+						},
+						{
+							"id": "cc360bf8-1367-498c-9da2-48562bb2684c",
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"description": "Added as a part of security scheme: basic",
+										"key": "Authorization",
+										"value": "Basic <credentials>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"company_name\": \"<string>\",\n  \"email\": \"<email>\",\n  \"number_of_outlets\": \"<integer>\",\n  \"phone_number\": \"<string>\",\n  \"verified\": \"<boolean>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/sign-up/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sign-up",
+										""
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"uuid": "566a6d29-ae16-4e12-bee5-b43c72a20d4c"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"examples\": {\n    \"response\": {\n      \"value\": {\n        \"error\": true,\n        \"detail\": {\n          \"field_name\": [\n            \"error message\"\n          ]\n        }\n      }\n    }\n  }\n}"
+						}
+					]
+				}
+			],
+			"id": "36bca366-78e5-4377-90ce-8514401bd612"
+		},
+		{
+			"name": "verify-otp",
+			"item": [
+				{
+					"name": "{user_id}",
+					"item": [
+						{
+							"name": "verify-otp create",
+							"id": "11e65f6a-c7b4-49cd-b505-ea3b0d5c3d23",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"otp\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/verify-otp/:user_id/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"verify-otp",
+										":user_id",
+										""
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "<string>",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"id": "e3003bd8-2f78-4fe8-9223-5581041b9427",
+									"name": "OTP verified successfully",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: basic",
+												"key": "Authorization",
+												"value": "Basic <credentials>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"otp\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/verify-otp/:user_id/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"verify-otp",
+												":user_id",
+												""
+											],
+											"variable": [
+												{
+													"key": "user_id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json",
+											"uuid": "83135f75-1893-4f1e-a34c-7cc68f15bbac"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"examples\": {\n    \"response\": {\n      \"value\": {\n        \"error\": false,\n        \"detail\": \"OTP verified successfully. Username and password have been sent to your email.\"\n      }\n    }\n  }\n}"
+								},
+								{
+									"id": "0e6f2c2f-5829-4a40-a7b7-a3c47c7cde46",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: basic",
+												"key": "Authorization",
+												"value": "Basic <credentials>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"otp\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/verify-otp/:user_id/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"verify-otp",
+												":user_id",
+												""
+											],
+											"variable": [
+												{
+													"key": "user_id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json",
+											"uuid": "c5993b3f-8849-4448-b6de-78868a77418b"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"examples\": {\n    \"response\": {\n      \"value\": {\n        \"error\": true,\n        \"detail\": \"Invalid OTP.\"\n      }\n    }\n  }\n}"
+								}
+							]
+						}
+					],
+					"id": "647a1130-83c9-44fe-91c1-9e78018394ba"
+				}
+			],
+			"id": "0bce9c30-0ee2-42a0-9636-8cfc90665ea4"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "93f5d0ee-bc79-48e8-b1de-c3bac7d7f164",
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "b9656483-eb66-4a0e-ba81-85d64b1a7a06",
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "7a58b6cd-cf6d-46eb-9c8a-93485acc5247",
+			"key": "baseUrl",
+			"value": "http://13.60.85.9:8081/v1/auth"
+		}
+	]
+}
