@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'v1',
+    'qr',
     'users',
     'userauth',
     'drf_yasg',
@@ -84,24 +85,24 @@ WSGI_APPLICATION = 'pos.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-# Postgre Sql Configuration
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'posapp',
-#         'USER': 'postgres',
-#         'PASSWORD': 'root',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+# Postgre Sql Configuration
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'posapp',
+        'USER': 'postgres',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 
 
 # Password validation
