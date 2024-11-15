@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'v1',
     'qr',
+    'counterapi',
+    'helpdesk',
     'users',
     'userauth',
     'drf_yasg',
@@ -92,7 +94,7 @@ DATABASES = {
     }
 }
 
-# # Postgre Sql Configuration
+# Postgre Sql Configuration
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',

@@ -1,6 +1,14 @@
 from rest_framework import serializers
-from v1.models import Company
+from v1.models import (
+    Company,
+    Plan,
+    PlanAssignment,
+    Outlet,
+    OutletAccess,
+    Employee
+)
 from users.models import CustomUser
+from datetime import date, timedelta
 
 class CompanyUserSerializer(serializers.Serializer):
     company_name = serializers.CharField(max_length=255)
@@ -38,6 +46,32 @@ class CompanyUserSerializer(serializers.Serializer):
         user.plain_password = password
         user.save()  # Save the user instance to update the plain_password field
 
+        
+                # Assign a free plan to the user
+        try:
+            free_plan = Plan.objects.get(plan_name='Free')
+            PlanAssignment.objects.create(
+                plan=free_plan,
+                user=user,
+                valid_till=date.today() + timedelta(days=15),  # Valid for 15 days from today
+                status='active'
+            )
+        except Plan.DoesNotExist:
+            # Handle the case where a 'Free' plan does not exist
+            raise serializers.ValidationError("Free plan is not available.")
+        
+        
+        
+        # Create an entry in the Employee model with the role of 'manager'
+        Employee.objects.create(
+            company=company,
+            user=user,
+            email=validated_data['email'],
+            phone_number=validated_data['phone_number'],
+            role='manager'
+        )
+        
+        
         return user
 
 
