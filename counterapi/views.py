@@ -6,6 +6,7 @@ from decimal import Decimal
 from django.shortcuts import render
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -43,7 +44,10 @@ from v1.models import (
     Order,
     OrderItem, 
     Customer,
-    StockRequest
+    StockRequest,
+    Employee,
+    PlanAssignment,
+    Plan
     )
 
 
@@ -66,61 +70,83 @@ def user_login(request):
     try:
         if request.method == "POST":
             serializer = CustomUserCounterLoginSerializer(data=request.data)
+            print(request.data)
+            print(serializer.is_valid())
             if serializer.is_valid():
                 user = serializer.validated_data["user"]
+                # role = serializer.validated_data["role"]
+                # print(user)
+                # print(role)
                 token, _ = Token.objects.get_or_create(user=user)
 
-                # Generate slug from first name and last name
-                slug = (user.first_name + user.last_name).lower().replace(" ", "")
+                # Fetch the employee record for the user and role
+                employee = Employee.objects.get(user=user)
 
-                # Get general user details
+                # Prepare user details
                 user_details = {
-                    "id": user.id,
-                    "username": user.username,
-                    "name": user.first_name + " " + user.last_name,
-                    "email": user.email,
-                    "slug": slug,
+                    "id": employee.user.id,
+                    "username": employee.user.username,
+                    "name": f"{employee.first_name} {employee.last_name}",
+                    "email": employee.email,
+                    "phone_number": employee.phone_number,
+                    "address": employee.address,
+                    "date_of_birth": employee.date_of_birth,
+                    "profile_image": employee.profile_image.url if employee.profile_image else None,
+                    "role": employee.get_role_display(),
+                    "is_active": employee.is_active,
+                    "employee_code": employee.employee_code,
                 }
 
-                # Get the list of companies the user is associated with
-                companies = Company.objects.filter(outlets__outletaccess__user=user).distinct()
-                user_details["companies"] = []
+                # Fetch company details
+                company = employee.company
+                company_details = {
+                    "id": company.id,
+                    "name": company.name,
+                    "address": company.address,
+                    "gst_in": company.gst_in,
+                    "number_of_outlets": company.number_of_outlets,
+                    "number_of_employees": company.number_of_employees,
+                }
 
-                for company in companies:
-                    # Get the outlets the user has access to within this company
-                    outlets_access = OutletAccess.objects.filter(user=user, outlet__company=company)
-                    outlets = [
-                        {
-                            "id": outlet_access.outlet.id,
-                            "name": outlet_access.outlet.outlet_name,
-                            "address": outlet_access.outlet.address,
-                            "permissions": outlet_access.permissions,
-                        }
-                        for outlet_access in outlets_access
-                    ]
+                # Fetch outlet details for the employee
+                outlets = Outlet.objects.filter(outletaccess__employee=employee).distinct()
+                outlet_details = [
+                    {"id": outlet.id, "name": outlet.outlet_name}
+                    for outlet in outlets
+                ]
 
-                    # Add company and related outlets to the user details
-                    user_details["companies"].append({
-                        "id": company.id,
-                        "name": company.name,
-                        "address": company.address,
-                        "number_of_outlets": company.number_of_outlets,
-                        "number_of_employees": company.number_of_employees,
-                        "outlets": outlets,  # Outlets that the user has access to in this company
-                    })
-
-                return Response(
-                    {
-                        "error": False,
-                        "detail": "User logged in successfully",
-                        "token": token.key,
-                        "user_details": user_details,
-                    },
-                    status=status.HTTP_200_OK,
+                # Fetch active plan details for the user
+                from datetime import date
+                plan_assignments = PlanAssignment.objects.filter(
+                    user=user, status="active", valid_till__gte=date.today()
                 )
+                plans = [
+                    {
+                        "id": plan_assignment.plan.id,
+                        "name": plan_assignment.plan.plan_name,
+                        "price": str(plan_assignment.plan.plan_price),
+                        "price_tenure": plan_assignment.plan.price_tenure,
+                        "valid_till": plan_assignment.valid_till,
+                        "status": plan_assignment.status,
+                    }
+                    for plan_assignment in plan_assignments
+                ]
+
+                # Prepare the response
+                response_data = {
+                    "error": False,
+                    "detail": "User logged in successfully",
+                    "token": token.key,
+                    "user_details": user_details,
+                    "company_details": company_details,
+                    "outlet_details": outlet_details,
+                    "plans": plans,
+                }
+
+                return Response(response_data, status=status.HTTP_200_OK)
 
             return Response(
-                {"error": True, "detail": "Invalid username or password "},
+                {"error": True, "detail": "Invalid username or password."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
     except Exception as e:
@@ -138,47 +164,64 @@ def user_login(request):
 
 @swagger_auto_schema(
     method='get',
+    manual_parameters=[
+        openapi.Parameter(
+            'outlet_id',
+            openapi.IN_PATH,
+            description="ID of the outlet for which categories are being fetched",
+            type=openapi.TYPE_INTEGER,
+            required=True,
+        )
+    ],
     responses={
         200: openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "error": openapi.Schema(type=openapi.TYPE_BOOLEAN),
-                "details": openapi.Schema(type=openapi.TYPE_STRING),
+                "error": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="Indicates if the request was successful"),
+                "details": openapi.Schema(type=openapi.TYPE_STRING, description="Details about the response"),
                 "categories": openapi.Schema(
                     type=openapi.TYPE_ARRAY,
                     items=openapi.Schema(type=openapi.TYPE_STRING),
+                    description="List of category names for the specified outlet",
                 ),
+            },
+        ),
+        404: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "error": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="Indicates if the request failed"),
+                "details": openapi.Schema(type=openapi.TYPE_STRING, description="Error details, e.g., 'Not Found'"),
             },
         ),
         500: openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "error": openapi.Schema(type=openapi.TYPE_BOOLEAN),
-                "details": openapi.Schema(type=openapi.TYPE_STRING),
-                "categories": openapi.Schema(
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.Schema(type=openapi.TYPE_STRING),
-                ),
+                "error": openapi.Schema(type=openapi.TYPE_BOOLEAN, description="Indicates if an internal server error occurred"),
+                "details": openapi.Schema(type=openapi.TYPE_STRING, description="Details about the server error"),
             },
         ),
     },
 )
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def category_list(request):
+def category_list(request, outlet_id):
     try:
-        category_names = Category.objects.values_list('name', flat=True)
+        # Fetch the outlet to ensure it exists
+        outlet = get_object_or_404(Outlet, id=outlet_id)
+
+        # Fetch category names for the specified outlet
+        category_names = Category.objects.filter(outlet=outlet).values_list('name', flat=True)
+
         return Response({
             "error": False,
             "details": "Categories fetched successfully",
             "categories": list(category_names),
-        })
+        }, status=200)
     except Exception as e:
         return Response({
             "error": True,
             "details": f"An error occurred: {str(e)}"
-        })
-
+        }, status=500)
 
 
 
@@ -403,6 +446,10 @@ def place_order(request, outlet_id):
             "error": True,
             "details": f"An error occurred: {str(e)}"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
 
 
 
