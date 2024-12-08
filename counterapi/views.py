@@ -356,6 +356,19 @@ def place_order(request, outlet_id):
         customer_data = data.get('customer')
         items_data = data.get('items')
 
+        # Check if the customer exists
+        customer = Customer.objects.filter(
+            name=customer_data.get('name'),
+            phone_number=customer_data.get('phone_number')
+        ).first()
+
+        if not customer:
+            # Create a new customer if it doesn't exist
+            customer = Customer.objects.create(
+                name=customer_data.get('name'),
+                phone_number=customer_data.get('phone_number')
+            )
+
         # Create the Order
         order = Order.objects.create(
             outlet_id=outlet_id,
@@ -367,6 +380,10 @@ def place_order(request, outlet_id):
             address=data.get('address', ''),
             mode=data.get('mode', ''),
         )
+
+        # Link the customer to the order
+        customer.order = order
+        customer.save()
 
         total_price = Decimal('0.00')
         total_gst = Decimal('0.00')
@@ -417,19 +434,17 @@ def place_order(request, outlet_id):
         order.gst = total_gst
         order.save()
 
-        # Create Customer
-        customer_serializer = CustomerSerializer(data=customer_data)
-        if customer_serializer.is_valid():
-            customer = customer_serializer.save(order=order)
-        else:
-            return Response({
-                "error": True,
-                "details": "Invalid customer data"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Serialize and return the created order
+        # Serialize and return the created order with customer details
         order_serializer = OrderSerializer(order)
-        return Response(order_serializer.data, status=status.HTTP_201_CREATED)
+        response_data = order_serializer.data
+
+        # Add customer data to the response manually
+        response_data['customer'] = {
+            "name": customer.name,
+            "phone_number": customer.phone_number
+        }
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     except Product.DoesNotExist:
         return Response({
@@ -446,6 +461,8 @@ def place_order(request, outlet_id):
             "error": True,
             "details": f"An error occurred: {str(e)}"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 
@@ -491,6 +508,8 @@ def orders_past_three_hours(request, outlet_id):
             "total_orders": total_orders,
             "orders_on_current_page": orders_on_current_page,
             "total_pages": total_pages,
+            "next_page_url": paginator.get_next_link(),
+            "previous_page_url": paginator.get_previous_link(),
             "orders": [
                 {
                     "order_number": order.order_number,
@@ -503,7 +522,7 @@ def orders_past_three_hours(request, outlet_id):
             ]
         }
 
-        return paginator.get_paginated_response(response_data)
+        return Response(response_data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({
             "error": True,
@@ -582,20 +601,53 @@ def order_details(request, outlet_id):
                 "details": "Order not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        # Serialize the order along with the related items and customer
-        serializer = OrderListSerializer(order)
+        # Get the customer associated with the order
+        customer = order.customers.first()  # Assuming an Order has a related Customer
 
-        return Response({
+        # Serialize the order and its items
+        items = [
+            {
+                "product_name": item.product.name if item.product else None,
+                "product_variant_name": item.product_variant.name if item.product_variant else None,
+                "quantity": item.quantity,
+                "price": str(item.price),
+                "total_price": str(item.total_price),
+                "gst": str(item.gst),
+            }
+            for item in order.items.all()
+        ]
+
+        # Prepare customer details
+        customer_details = {
+            "name": customer.name if customer else None,
+            "phone_number": customer.phone_number if customer else None,
+        }
+
+        # Build the response data
+        response_data = {
             "error": False,
             "details": "Order fetched successfully",
-            "order": serializer.data
-        })
+            "order": {
+                "order_number": order.order_number,
+                "order_date": order.order_date,
+                "total_price": str(order.total_price),
+                "gst": str(order.gst),
+                "status": order.status,
+                "mode": order.mode,
+                "address": order.address,
+                "items": items,
+                "customer": customer_details,
+            },
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({
             "error": True,
             "details": f"An error occurred: {str(e)}"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
@@ -615,42 +667,70 @@ def order_details(request, outlet_id):
     }
 )
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def create_stock_request(request, outlet_id):
     try:
         # Ensure outlet exists
         outlet = Outlet.objects.get(id=outlet_id)
 
-        # Set the default status to 'PENDING'
+        # Set the default status to 'PENDING' and add outlet ID to request data
         request.data['status'] = 'PENDING'
-        request.data['outlet'] = outlet.id  # Automatically add outlet to request data
+        request.data['outlet'] = outlet.id
 
-        # Serialize and create stock request
-        serializer = StockRequestSerializer(data=request.data)
-        if serializer.is_valid():
-            stock_request = serializer.save()
-            return Response({
-                "error": False,
-                "details": "Stock request created successfully",
-                "stock_request": serializer.data
-            }, status=status.HTTP_201_CREATED)
-        else:
+        # Check if products and/or variants are provided
+        products = request.data.get('products')  # Expecting a list of product IDs
+        variants = request.data.get('variants')  # Expecting a list of variant IDs
+
+        if not products and not variants:
             return Response({
                 "error": True,
-                "details": "Invalid data",
-                "errors": serializer.errors
+                "details": "At least one product or product variant must be provided."
             }, status=status.HTTP_400_BAD_REQUEST)
-    
+
+        stock_requests = []
+        if products:
+            for product_id in products:
+                stock_request = StockRequest(
+                    product_id=product_id,
+                    outlet=outlet
+                )
+                stock_requests.append(stock_request)
+
+        if variants:
+            for variant_id in variants:
+                stock_request = StockRequest(
+                    product_variant_id=variant_id,
+                    outlet=outlet
+                )
+                stock_requests.append(stock_request)
+
+        if stock_requests:
+            StockRequest.objects.bulk_create(stock_requests)
+            serializer = StockRequestSerializer(stock_requests, many=True)
+            return Response({
+                "error": False,
+                "details": "Stock requests created successfully",
+                "stock_requests": serializer.data
+            }, status=status.HTTP_201_CREATED)
+
+        return Response({
+            "error": True,
+            "details": "Failed to create stock requests"
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     except Outlet.DoesNotExist:
         return Response({
             "error": True,
             "details": f"Outlet with ID {outlet_id} not found"
         }, status=status.HTTP_404_NOT_FOUND)
-    
+
     except Exception as e:
         return Response({
             "error": True,
             "details": f"An error occurred: {str(e)}"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 

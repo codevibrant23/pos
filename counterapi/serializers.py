@@ -152,7 +152,7 @@ class OrderListSerializer(serializers.ModelSerializer):
 class StockRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockRequest
-        fields = ['product', 'product_variant', 'requested_quantity', 'outlet']
+        fields = ['product', 'product_variant', 'outlet']
         read_only_fields = ['status', 'timestamp', 'updated_at']
 
     def validate(self, data):
@@ -160,6 +160,3 @@ class StockRequestSerializer(serializers.ModelSerializer):
         if not data.get('product') and not data.get('product_variant'):
             raise serializers.ValidationError("Either product or product_variant must be provided.")
         return data
-
-
-
